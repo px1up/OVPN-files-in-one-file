@@ -1,5 +1,7 @@
 import os
 
+name = input("Введите имя владельца сертификата: ")
+
 #Переменные теги
 ca_tag_open = ("<ca>\n")
 ca_tag_close = ("</ca>\n")
@@ -24,6 +26,10 @@ for file in os.listdir():
 for file in os.listdir():
     if file.endswith(".crt"):
         crt = (os.path.join(file))
+
+for file in os.listdir():
+    if file.endswith("ta"):
+        ta = (os.path.join(file))
         
 fileName=crt
 with open(fileName,'r+') as f:
@@ -40,6 +46,15 @@ with open(fileName,'r+') as f:
   f.seek(0)
   f.write(contents)
   f.truncate()   
+
+  fileName=ta
+with open(fileName,'r+') as f:
+  contents=f.read()
+  contents=contents[contents.find("-----BEGIN"):]
+  f.seek(0)
+  f.write(contents)
+  f.truncate()   
+
 
 #Открываем файл конфига *.ovpn
 with open("template") as file:
@@ -65,7 +80,11 @@ with open(key) as file:
 with open("client.ovpn", "w") as file:
     file.write(config)
 with open("client.ovpn", "a") as file:
-    file.write("\n") 
+    file.write("\n")
+with open("client.ovpn", "a") as file:
+    file.write("key-direction 1\n")
+with open("client.ovpn", "a") as file:
+    file.write("\n")
 
 #Записываем ca
 with open("client.ovpn", "a") as file:
@@ -100,8 +119,4 @@ with open("client.ovpn", "a") as file:
     file.write(ta_tag_close)
 
 os.rename('ta','ta.key')
-
-
-
-    
-print("Готово")
+os.rename('client.ovpn', name + ".ovpn")
