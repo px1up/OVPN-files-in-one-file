@@ -1,0 +1,14 @@
+client
+resolv-retry infinite
+nobind
+remote ip-address
+proto udp
+dev tun
+comp-lzo
+tls-client
+float
+keepalive 10 120
+persist-key
+persist-tun
+verb 0
+key-direction 1
