@@ -1,19 +1,5 @@
 import os
-
 name = input("Введите имя владельца сертификата: ")
-
-#Переменные теги
-ca_tag_open = ("<ca>\n")
-ca_tag_close = ("</ca>\n")
-
-crt_tag_open = ("<cert>\n")
-crt_tag_close = ("</cert>\n")
-
-key_tag_open = ("<key>\n")
-key_tag_close = ("</key>\n")
-
-ta_tag_open = ("<tls-auth>\n")
-ta_tag_close = ("</tls-auth>\n")
 
 os.rename('ta.key','ta')
 
@@ -29,8 +15,9 @@ for file in os.listdir():
 
 for file in os.listdir():
     if file.endswith("ta"):
+
         ta = (os.path.join(file))
-        
+#Обрезаем файл crt
 fileName=crt
 with open(fileName,'r+') as f:
   contents=f.read()
@@ -38,23 +25,23 @@ with open(fileName,'r+') as f:
   f.seek(0)
   f.write(contents)
   f.truncate()
-  
+
+#обрезаем ключи
   fileName=key
 with open(fileName,'r+') as f:
   contents=f.read()
   contents=contents[contents.find("-----BEGIN"):]
   f.seek(0)
   f.write(contents)
-  f.truncate()   
-
+  f.truncate()
+#обрезаем ta
   fileName=ta
 with open(fileName,'r+') as f:
   contents=f.read()
   contents=contents[contents.find("-----BEGIN"):]
   f.seek(0)
   f.write(contents)
-  f.truncate()   
-
+  f.truncate()
 
 #Открываем файл конфига *.ovpn
 with open("template") as file:
@@ -75,48 +62,27 @@ with open(crt) as file:
 #Открываем файл конфига *key
 with open(key) as file:
      user_key = file.read()
- 
+
 #Создаем файл *.ovpn на основе config.ovpn
 with open("client.ovpn", "w") as file:
-    file.write(config)
-with open("client.ovpn", "a") as file:
-    file.write("\n")
-with open("client.ovpn", "a") as file:
-    file.write("key-direction 1\n")
-with open("client.ovpn", "a") as file:
-    file.write("\n")
+    file.write(config + "\n" + "key-direction 1\n")
 
 #Записываем ca
 with open("client.ovpn", "a") as file:
-    file.write(ca_tag_open)
-with open("client.ovpn", "a") as file:
-    file.write(ca)   
-with open("client.ovpn", "a") as file:
-    file.write(ca_tag_close)
+    file.write("<ca>\n" + ca + "</ca>")
 
-#Записываем user_crt 
+#Записываем user_crt
 with open("client.ovpn", "a") as file:
-    file.write(crt_tag_open)
-with open("client.ovpn", "a") as file:
-    file.write(user_crt)
-with open("client.ovpn", "a") as file:
-    file.write(crt_tag_close)   
+    file.write("\n<cert>\n" + user_crt + "</cert>\n")
 
-#Записываем user_key 
+#Записываем user_key
 with open("client.ovpn", "a") as file:
-    file.write(key_tag_open)
-with open("client.ovpn", "a") as file:
-    file.write(user_key)
-with open("client.ovpn", "a") as file:
-    file.write(key_tag_close)
-    
+    file.write("<key>\n" + user_key + "</key>\n")
+
 #Записываем ta
 with open("client.ovpn", "a") as file:
-    file.write(ta_tag_open)
-with open("client.ovpn", "a") as file:
-    file.write(ta)   
-with open("client.ovpn", "a") as file:
-    file.write(ta_tag_close)
+    file.write("<tls-auth>\n" + ta + "</tls-auth>")
 
 os.rename('ta','ta.key')
 os.rename('client.ovpn', name + ".ovpn")
+print("Файл успешно создан")
